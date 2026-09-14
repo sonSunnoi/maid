@@ -2,6 +2,28 @@
   "curly-in-quoted.mmd": [
     "FL-LABEL-CURLY-IN-UNQUOTED"
   ],
+  "diamond-indexof-brackets.mmd": [
+    "FL-LABEL-PARENS-UNQUOTED",
+    "FL-LABEL-PARENS-UNQUOTED"
+  ],
+  "diamond-parens-unquoted.mmd": [
+    "FL-LABEL-PARENS-UNQUOTED"
+  ],
+  "edge-label-bracket-encoded-braces.mmd": [
+    "FL-EDGE-LABEL-BRACKET"
+  ],
+  "edge-label-brackets-with-quotes.mmd": [
+    "FL-EDGE-LABEL-BRACKET"
+  ],
+  "edge-label-curly-in-pipes.mmd": [
+    "FL-EDGE-LABEL-CURLY-IN-PIPES"
+  ],
+  "edge-label-marker-mismatch.mmd": [
+    "FL-LINK-MARKER-MISMATCH"
+  ],
+  "edge-label-quote-in-pipes.mmd": [
+    "FL-EDGE-LABEL-QUOTE-IN-PIPES"
+  ],
   "empty-nodes.mmd": [
     "FL-NODE-EMPTY",
     "FL-NODE-EMPTY",
@@ -23,6 +45,29 @@
   "invalid-subgraph.mmd": [
     "FL-SUBGRAPH-MISSING-HEADER"
   ],
+  "issue-60-parens-unquoted.mmd": [
+    "FL-LABEL-PARENS-UNQUOTED",
+    "FL-LABEL-PARENS-UNQUOTED"
+  ],
+  "label-bracket-in-unquoted.mmd": [
+    "FL-LABEL-BRACKET-IN-UNQUOTED"
+  ],
+  "label-curly-in-unquoted.mmd": [
+    "FL-LABEL-CURLY-IN-UNQUOTED"
+  ],
+  "label-leading-slash-unquoted.mmd": [
+    "FL-LABEL-SLASH-UNQUOTED"
+  ],
+  "label-with-at-slash.mmd": [
+    "FL-LABEL-AT-IN-UNQUOTED"
+  ],
+  "label-with-attribute-quotes.mmd": [
+    "FL-LABEL-QUOTE-IN-UNQUOTED"
+  ],
+  "link-one-sided-marker.mmd": [
+    "FL-LINK-UNSUPPORTED-MARKER",
+    "FL-LINK-UNSUPPORTED-MARKER"
+  ],
   "missing-arrow.mmd": [
     "FL-LINK-MISSING"
   ],
@@ -35,6 +80,9 @@
   "no-diagram-type.mmd": [
     "GEN-HEADER-INVALID"
   ],
+  "note-block-endnote.mmd": [
+    "FL-NOTE-NOT-SUPPORTED"
+  ],
   "quotes-double-inside-single.mmd": [
     "FL-LABEL-DOUBLE-IN-SINGLE"
   ],
@@ -42,6 +90,18 @@
     "FL-LABEL-QUOTE-IN-UNQUOTED",
     "FL-LABEL-QUOTE-IN-UNQUOTED",
     "FL-LABEL-QUOTE-IN-UNQUOTED"
+  ],
+  "round-parens-unquoted.mmd": [
+    "FL-LABEL-PARENS-UNQUOTED"
+  ],
+  "subgraph-id-collision.mmd": [
+    "FL-SUBGRAPH-ID-COLLISION"
+  ],
+  "title-unsupported.mmd": [
+    "FL-META-UNSUPPORTED"
+  ],
+  "typed-parallelogram-parens.mmd": [
+    "FL-LABEL-PARENS-UNQUOTED"
   ],
   "unclosed-bracket.mmd": [
     "FL-NODE-UNCLOSED-BRACKET"
@@ -61,70 +121,10 @@
   "unquoted-parens-in-labels.mmd": [
     "FL-LABEL-PARENS-UNQUOTED"
   ],
-  "wrong-direction.mmd": [
-    "FL-DIR-INVALID"
-  ],
-  "link-one-sided-marker.mmd": [
-    "FL-LINK-UNSUPPORTED-MARKER",
-    "FL-LINK-UNSUPPORTED-MARKER"
-  ],
-  "title-unsupported.mmd": [
-    "FL-META-UNSUPPORTED"
-  ],
   "unquoted-parens-with-backticks.mmd": [
     "FL-LABEL-PARENS-UNQUOTED"
   ],
-  "label-with-attribute-quotes.mmd": [
-    "FL-LABEL-QUOTE-IN-UNQUOTED"
-  ],
-  "label-leading-slash-unquoted.mmd": [
-    "FL-LABEL-SLASH-UNQUOTED"
-  ],
-  "label-curly-in-unquoted.mmd": [
-    "FL-LABEL-CURLY-IN-UNQUOTED"
-  ],
-  "label-bracket-in-unquoted.mmd": [
-    "FL-LABEL-BRACKET-IN-UNQUOTED"
-  ],
-  "diamond-parens-unquoted.mmd": [
-    "FL-LABEL-PARENS-UNQUOTED"
-  ],
-  "diamond-indexof-brackets.mmd": [
-    "FL-LABEL-PARENS-UNQUOTED",
-    "FL-LABEL-PARENS-UNQUOTED"
-  ],
-  "edge-label-quoted.mmd": [
-    "FL-EDGE-LABEL-QUOTED"
-  ],
-  "edge-label-curly-in-pipes.mmd": [
-    "FL-EDGE-LABEL-CURLY-IN-PIPES"
-  ],
-  "edge-label-quote-in-pipes.mmd": [
-    "FL-EDGE-LABEL-QUOTE-IN-PIPES"
-  ],
-  "edge-label-bracket-encoded-braces.mmd": [
-    "FL-EDGE-LABEL-BRACKET"
-  ],
-  "edge-label-brackets-with-quotes.mmd": [
-    "FL-EDGE-LABEL-BRACKET"
-  ],
-  "typed-parallelogram-parens.mmd": [
-    "FL-LABEL-PARENS-UNQUOTED"
-  ],
-  "label-with-at-slash.mmd": [
-    "FL-LABEL-AT-IN-UNQUOTED"
-  ],
-  "issue-60-parens-unquoted.mmd": [
-    "FL-LABEL-PARENS-UNQUOTED",
-    "FL-LABEL-PARENS-UNQUOTED"
-  ],
-  "round-parens-unquoted.mmd": [
-    "FL-LABEL-PARENS-UNQUOTED"
-  ],
-  "subgraph-id-collision.mmd": [
-    "FL-SUBGRAPH-ID-COLLISION"
-  ],
-  "note-block-endnote.mmd": [
-    "FL-NOTE-NOT-SUPPORTED"
+  "wrong-direction.mmd": [
+    "FL-DIR-INVALID"
   ]
 }

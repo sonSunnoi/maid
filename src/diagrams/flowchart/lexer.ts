@@ -66,7 +66,9 @@ export const ClassDefKeyword = createToken({
     longer_alt: Identifier
 });
 // Interactions
-export const ClickKeyword = createToken({ name: "ClickKeyword", pattern: /click/, longer_alt: Identifier });
+// Mermaid only treats 'click' as a directive when it is followed by a node id. 'click[Label]' is a
+// node whose id happens to be the word 'click', so require no adjacent shape bracket here.
+export const ClickKeyword = createToken({ name: "ClickKeyword", pattern: /click(?!\s*\[)/, longer_alt: Identifier });
 export const LinkStyleKeyword = createToken({ name: "LinkStyleKeyword", pattern: /linkStyle/, longer_alt: Identifier });
 
 

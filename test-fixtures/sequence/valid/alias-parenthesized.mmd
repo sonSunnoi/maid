@@ -1,0 +1,6 @@
+sequenceDiagram
+    participant V as Vault (local)
+    participant W as API + worker
+    participant P as localhost:3000
+    V->>W: sync
+    W->>P: notify

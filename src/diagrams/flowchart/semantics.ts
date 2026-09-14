@@ -81,6 +81,17 @@ class FlowSemanticsVisitor extends BaseVisitor {
     // Prefer structured subrules when available
     const href = (ctx as any).clickHref?.[0] as CstNode | undefined;
     const call = !href ? ((ctx as any).clickCall?.[0] as CstNode | undefined) : undefined;
+    // Mermaid shorthand: click A "https://…" ["Tip"] [_blank]
+    if (!href && !call) {
+      const urlTok = ((ctx as any).url || [])[0];
+      const tgtTok = ((ctx as any).target || [])[0];
+      if (urlTok) {
+        if (tgtTok && !/^_(blank|self|parent|top)$/i.test(String(tgtTok.image || ''))) {
+          this.ctx.errors.push({ line: tgtTok.startLine ?? 1, column: tgtTok.startColumn ?? 1, severity: 'warning', code: 'FL-CLICK-TARGET-UNKNOWN', message: `Unknown target '${tgtTok.image}'. Use _blank/_self/_parent/_top.`, hint: 'Example: click A "https://example.com" "Open" _blank' });
+        }
+        return;
+      }
+    }
     if (href) {
       const ch: any = (href.children || {});
       const modeTok = ch.mode?.[0];
@@ -638,8 +649,60 @@ class FlowSemanticsVisitor extends BaseVisitor {
     }
   }
 
+  // Mermaid requires the closing arrow family to match the opening marker:
+  // '-- label -->', '-. label .->', '== label ==>'. Mixing them is a parse error in Mermaid.
+  private checkLinkMarkerPairing(ctx: any) {
+    const toks: IToken[] = [];
+    // Visitor ctx is already the children map (token type -> tokens/nodes).
+    const collect = (children: any) => {
+      const kids = (children || {}) as Record<string, any[]>;
+      for (const arr of Object.values(kids)) {
+        for (const child of arr || []) {
+          if (child && typeof (child as any).image === 'string') toks.push(child as IToken);
+          else if (child?.children) collect(child.children);
+        }
+      }
+    };
+    collect(ctx);
+    if (toks.length < 2) return;
+    toks.sort((a, b) => (a.startOffset ?? 0) - (b.startOffset ?? 0));
+    const marker = String(toks[0].image || '');
+    const expected = marker === '-.-' || marker.startsWith('-.')
+      ? 'dotted'
+      : /^==/.test(marker)
+        ? 'thick'
+        : marker === '--'
+          ? 'normal'
+          : null;
+    if (!expected) return; // plain arrow, nothing to pair
+    const last = String(toks[toks.length - 1].image || '');
+    const beforeLast = String(toks[toks.length - 2]?.image || '');
+    const found = last === '-.->'
+      ? 'dotted'
+      : last === '==>'
+        ? 'thick'
+        : last === '-->'
+          ? 'normal'
+          : last === '>'
+            ? (/\.-$/.test(beforeLast) ? 'dotted' : (/==$/.test(beforeLast) ? 'thick' : null))
+            : null;
+    if (!found || found === expected) return;
+    const closers: Record<string, string> = { dotted: '-. label .->', thick: '== label ==>', normal: '-- label -->' };
+    const p = toks[toks.length - 1];
+    this.ctx.errors.push({
+      line: p.startLine ?? 1,
+      column: p.startColumn ?? 1,
+      severity: 'error',
+      code: 'FL-LINK-MARKER-MISMATCH',
+      message: `Edge opened with '${marker}' must be closed with the matching arrow, not '${last}'.`,
+      hint: `Use: A ${closers[expected]} B`,
+      length: Math.max(1, last.length)
+    });
+  }
+
   // Validate link specifics that Mermaid CLI enforces but our grammar may parse loosely
   link(ctx: any) {
+    this.checkLinkMarkerPairing(ctx);
     // Detect inline-text variant like: -- text -->
     const inline: CstNode | undefined = (ctx as any).linkTextInline?.[0] as CstNode | undefined;
     if (inline) {

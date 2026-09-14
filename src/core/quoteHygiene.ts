@@ -42,17 +42,14 @@ export function detectDoubleInDouble(
     for (let i = 0; i < arr.length; i++) {
       const t = arr[i];
       if (t.tokenType?.name !== 'QuotedString') continue;
-      // If start tokens are specified, ensure one appears earlier on this line before first quote
+      // If start tokens are specified, the quoted string must sit directly inside that scope opener,
+      // e.g. A["label"]. A quote further along the line (an edge label after earlier nodes) is unrelated.
       if (starts.size > 0) {
-        // Find the nearest scope-start token before this quote
-        let startIdx = -1;
-        for (let k = i - 1; k >= 0; k--) {
-          const s = arr[k];
-          if (starts.has(s.tokenType?.name || '')) { startIdx = k; break; }
-        }
-        if (startIdx === -1) continue;
-        // Exclude typed-shape attribute objects: '@' followed by '{' (DiamondOpen)
+        const startIdx = i - 1;
+        if (startIdx < 0) continue;
         const sTok = arr[startIdx];
+        if (!starts.has(sTok.tokenType?.name || '')) continue;
+        // Exclude typed-shape attribute objects: '@' followed by '{' (DiamondOpen)
         const prevTok = arr[startIdx - 1];
         if ((sTok.tokenType?.name === 'DiamondOpen') && (prevTok?.tokenType?.name === 'AtSign')) {
           continue;
@@ -112,7 +109,13 @@ export function detectUnclosedQuotesInText(text: string, opts: {
     for (let j = 0; j < s.length; j++) {
       const ch = s[j];
       if (ch === '"') dqIdxs.push(j);
-      else if (ch === "'") sqIdxs.push(j);
+      else if (ch === "'") {
+        // An apostrophe inside a word ('user's') is not a quote delimiter.
+        const prev = s[j - 1];
+        const next = s[j + 1];
+        if (prev && next && /\w/.test(prev) && /\w/.test(next)) continue;
+        sqIdxs.push(j);
+      }
     }
     const oddDq = dqIdxs.length % 2 === 1;
     const oddSq = sqIdxs.length % 2 === 1;

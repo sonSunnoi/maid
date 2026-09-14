@@ -247,16 +247,6 @@ export function mapFlowchartParserError(err: IRecognitionException, text: string
           length: len
         };
       }
-      const quotedText = found.startsWith('"') ? found.slice(1, -1) : found;
-      return {
-        line,
-        column,
-        severity: 'error',
-        code: 'FL-EDGE-LABEL-QUOTED',
-        message: `Edge labels must use pipe syntax, not quotes.`,
-        hint: `Change -- "${quotedText}" --> to --|${quotedText}|--> or use -- |${quotedText}| -->`,
-        length: len
-      };
     }
   }
 

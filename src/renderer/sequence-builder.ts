@@ -93,9 +93,8 @@ export function buildSequenceModel(text: string): SequenceModel {
       const decl = ch.participantDecl[0] as CstNode;
       const dch = (decl.children || {}) as any;
       const ref1 = dch.actorRef?.[0] as CstNode;
-      const ref2 = dch.actorRef?.[1] as CstNode | undefined;
       const idText = actorRefToText(ref1);
-      const aliasText = ref2 ? actorRefToText(ref2) : undefined;
+      const aliasText = lineRemainderToText(dch.lineRemainder?.[0]);
       const id = canonicalId(idText);
       const display = aliasText || idText;
       const p = ensureParticipant(participantsMap, byDisplay, id, display);

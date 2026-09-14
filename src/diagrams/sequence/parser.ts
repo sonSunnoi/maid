@@ -1,6 +1,11 @@
 import { CstParser, EOF, type IToken } from 'chevrotain';
 import * as t from './lexer.js';
 
+// Free text (participant aliases, message bodies, note text, block titles) runs to the end of
+// the line in Mermaid, so keyword and arrow tokens appearing there must not terminate it.
+// Only the line terminator ends a text run.
+const TEXT_TOKENS = t.allTokens.filter((tk) => tk !== t.Newline && tk !== t.Comment && tk !== t.WhiteSpace);
+
 export class SequenceParser extends CstParser {
   constructor() {
     super(t.allTokens);
@@ -77,7 +82,8 @@ export class SequenceParser extends CstParser {
     this.SUBRULE(this.actorRef);
     this.OPTION(() => {
       this.CONSUME(t.AsKeyword);
-      this.SUBRULE2(this.actorRef);
+      // Alias text is free text: keywords, punctuation and symbols are all valid there.
+      this.OPTION2(() => this.SUBRULE(this.lineRemainder));
     });
     this.OR2([
       { ALT: () => this.AT_LEAST_ONE(() => this.CONSUME(t.Newline)) },
@@ -376,48 +382,7 @@ export class SequenceParser extends CstParser {
   });
 
   private lineRemainder = this.RULE('lineRemainder', () => {
-    this.AT_LEAST_ONE(() => this.OR([
-      { ALT: () => this.CONSUME(t.Identifier) },
-      { ALT: () => this.CONSUME(t.NumberLiteral) },
-      { ALT: () => this.CONSUME(t.QuotedString) },
-      { ALT: () => this.CONSUME(t.Text) },
-      { ALT: () => this.CONSUME(t.Plus) },
-      { ALT: () => this.CONSUME(t.Minus) },
-      { ALT: () => this.CONSUME(t.Comma) },
-      { ALT: () => this.CONSUME(t.Colon) },
-      { ALT: () => this.CONSUME(t.LParen) },
-      { ALT: () => this.CONSUME(t.RParen) },
-      // Allow any keywords if they happen to appear in text
-      { ALT: () => this.CONSUME(t.AndKeyword) },
-      { ALT: () => this.CONSUME(t.ElseKeyword) },
-      { ALT: () => this.CONSUME(t.OptKeyword) },
-      { ALT: () => this.CONSUME(t.OptionKeyword) },
-      { ALT: () => this.CONSUME(t.LoopKeyword) },
-      { ALT: () => this.CONSUME(t.ParKeyword) },
-      { ALT: () => this.CONSUME(t.RectKeyword) },
-      { ALT: () => this.CONSUME(t.CriticalKeyword) },
-      { ALT: () => this.CONSUME(t.BreakKeyword) },
-      { ALT: () => this.CONSUME(t.BoxKeyword) },
-      { ALT: () => this.CONSUME(t.EndKeyword) },
-      { ALT: () => this.CONSUME(t.TitleKeyword) },
-      { ALT: () => this.CONSUME(t.AccTitleKeyword) },
-      { ALT: () => this.CONSUME(t.AccDescrKeyword) },
-      { ALT: () => this.CONSUME(t.NoteKeyword) },
-      { ALT: () => this.CONSUME(t.LeftKeyword) },
-      { ALT: () => this.CONSUME(t.RightKeyword) },
-      { ALT: () => this.CONSUME(t.OverKeyword) },
-      { ALT: () => this.CONSUME(t.OfKeyword) },
-      { ALT: () => this.CONSUME(t.AutonumberKeyword) },
-      { ALT: () => this.CONSUME(t.OffKeyword) },
-      { ALT: () => this.CONSUME(t.LinkKeyword) },
-      { ALT: () => this.CONSUME(t.LinksKeyword) },
-      { ALT: () => this.CONSUME(t.CreateKeyword) },
-      { ALT: () => this.CONSUME(t.DestroyKeyword) },
-      { ALT: () => this.CONSUME(t.ParticipantKeyword) },
-      { ALT: () => this.CONSUME(t.ActorKeyword) },
-      { ALT: () => this.CONSUME(t.ActivateKeyword) },
-      { ALT: () => this.CONSUME(t.DeactivateKeyword) },
-    ]));
+    this.AT_LEAST_ONE(() => this.OR(TEXT_TOKENS.map((tk) => ({ ALT: () => this.CONSUME(tk) }))));
   });
 }
 

@@ -189,17 +189,25 @@ export class MermaidParser extends CstParser {
         // target id
         this.CONSUME(tokens.Identifier, { LABEL: 'clickTarget' });
         // Structured modes: href/call; keep permissive semantics in diagnostics
-        this.OR([
-            { 
-              GATE: () => this.LA(1).tokenType === tokens.Identifier && /^(href)$/i.test((this.LA(1) as any).image || ''),
-              ALT: () => this.SUBRULE(this.clickHref)
-            },
-            { 
-              GATE: () => this.LA(1).tokenType === tokens.Identifier && /^(call|callback)$/i.test((this.LA(1) as any).image || ''),
-              ALT: () => this.SUBRULE(this.clickCall)
-            }
-        ]);
-        this.OPTION(() => this.CONSUME(tokens.Newline));
+        this.OPTION(() => {
+            this.OR([
+                {
+                  GATE: () => this.LA(1).tokenType === tokens.Identifier && /^(href)$/i.test((this.LA(1) as any).image || ''),
+                  ALT: () => this.SUBRULE(this.clickHref)
+                },
+                {
+                  GATE: () => this.LA(1).tokenType === tokens.Identifier && /^(call|callback)$/i.test((this.LA(1) as any).image || ''),
+                  ALT: () => this.SUBRULE(this.clickCall)
+                }
+            ]);
+        });
+        // Shorthand form Mermaid documents as 'click nodeId "url" ["tooltip"] [_blank]'
+        this.OPTION2(() => this.CONSUME(tokens.QuotedString, { LABEL: 'url' }));
+        this.OPTION3(() => this.CONSUME2(tokens.QuotedString, { LABEL: 'tooltip' }));
+        this.OPTION4(() => this.CONSUME2(tokens.Identifier, { LABEL: 'target' }));
+        // Mermaid allows a trailing ';' statement terminator.
+        this.OPTION5(() => this.CONSUME(tokens.Semicolon));
+        this.OPTION6(() => this.CONSUME(tokens.Newline));
     });
 
     private clickHref = this.RULE('clickHref', () => {
@@ -423,7 +431,12 @@ export class MermaidParser extends CstParser {
                         { ALT: () => this.CONSUME(tokens.ThickLine) },
                         { ALT: () => this.CONSUME(tokens.TwoDashes) }
                     ]);
-                    this.SUBRULE(this.linkTextInline);
+                    this.OR4([
+                        { ALT: () => this.SUBRULE(this.linkTextInline) },
+                        // Mermaid accepts the whole inline label as one quoted string: 'A -- "text" --> B'.
+                        // Quoted text stays out of linkTextInline so quotes inside pipe labels still fail.
+                        { ALT: () => this.CONSUME(tokens.QuotedString) }
+                    ]);
                     this.OR3([
                         { ALT: () => this.CONSUME(tokens.ArrowRight) },
                         { ALT: () => this.CONSUME(tokens.DottedArrowRight) },
@@ -431,11 +444,14 @@ export class MermaidParser extends CstParser {
                     ]);
                 }
             },
-            // Inline text carrier patterns like '-.text.->' or '==text==>' tokenized as Text + '>'
+            // Mermaid also accepts quoted and identifier text between the link marker and the closing '>'
+            // e.g. '-. two words .->', '-. "two words" .->', '==text==>'.
             {
                 ALT: () => {
                     this.CONSUME(tokens.Text, { LABEL: 'inlineCarrier' });
-                    this.CONSUME(tokens.AngleOpen); // '>'
+                    // Stops before the closing '>' so the terminator is never swallowed.
+                    this.OPTION(() => this.SUBRULE(this.inlineTextRun));
+                    this.SUBRULE(this.linkInlineTail);
                 }
             },
             // Regular arrows/lines
@@ -487,6 +503,17 @@ export class MermaidParser extends CstParser {
                             { ALT: () => this.CONSUME(tokens.Colon) },
                             { ALT: () => this.CONSUME(tokens.Ampersand) },
                             { ALT: () => this.CONSUME(tokens.Semicolon) },
+                            // Reserved diagram keywords are plain text inside a pipe-delimited label.
+                            { ALT: () => this.CONSUME(tokens.EndKeyword) },
+                            { ALT: () => this.CONSUME(tokens.ClickKeyword) },
+                            { ALT: () => this.CONSUME(tokens.StyleKeyword) },
+                            { ALT: () => this.CONSUME(tokens.ClassKeyword) },
+                            { ALT: () => this.CONSUME(tokens.ClassDefKeyword) },
+                            { ALT: () => this.CONSUME(tokens.SubgraphKeyword) },
+                            { ALT: () => this.CONSUME(tokens.FlowchartKeyword) },
+                            { ALT: () => this.CONSUME(tokens.GraphKeyword) },
+                            { ALT: () => this.CONSUME(tokens.LinkStyleKeyword) },
+                            { ALT: () => this.CONSUME(tokens.Direction) },
                         ]);
                     });
                 }
@@ -512,11 +539,51 @@ export class MermaidParser extends CstParser {
                 { ALT: () => this.CONSUME(tokens.Comma) },
                 { ALT: () => this.CONSUME(tokens.Colon) },
                 { ALT: () => this.CONSUME(tokens.Ampersand) },
-                { ALT: () => this.CONSUME(tokens.Semicolon) }
+                { ALT: () => this.CONSUME(tokens.Semicolon) },
+                // Reserved diagram keywords are plain text inside an inline label.
+                { ALT: () => this.CONSUME(tokens.EndKeyword) },
+                { ALT: () => this.CONSUME(tokens.ClickKeyword) },
+                { ALT: () => this.CONSUME(tokens.StyleKeyword) },
+                { ALT: () => this.CONSUME(tokens.ClassKeyword) },
+                { ALT: () => this.CONSUME(tokens.ClassDefKeyword) },
+                { ALT: () => this.CONSUME(tokens.SubgraphKeyword) },
+                { ALT: () => this.CONSUME(tokens.FlowchartKeyword) },
+                { ALT: () => this.CONSUME(tokens.GraphKeyword) },
+                { ALT: () => this.CONSUME(tokens.LinkStyleKeyword) },
+                { ALT: () => this.CONSUME(tokens.Direction) }
             ]);
         });
     });
     
+    // Free-text run between a link marker and its closing '>'; never consumes the terminator.
+    private inlineTextRun = this.RULE("inlineTextRun", () => {
+        this.AT_LEAST_ONE(() => {
+            this.OR([
+                { ALT: () => this.CONSUME(tokens.Identifier) },
+                { ALT: () => this.CONSUME(tokens.Text) },
+                { ALT: () => this.CONSUME(tokens.QuotedString) },
+                { ALT: () => this.CONSUME(tokens.NumberLiteral) },
+                { ALT: () => this.CONSUME(tokens.ColorValue) },
+                { ALT: () => this.CONSUME(tokens.ForwardSlash) },
+                { ALT: () => this.CONSUME(tokens.Backslash) },
+                { ALT: () => this.CONSUME(tokens.Comma) },
+                { ALT: () => this.CONSUME(tokens.Colon) },
+                { ALT: () => this.CONSUME(tokens.Ampersand) },
+                { ALT: () => this.CONSUME(tokens.Semicolon) }
+            ]);
+        });
+    });
+
+    // Terminators for inline-label links whose text tokens precede the arrow, e.g. '-. label .->' or '== label ==>'.
+    private linkInlineTail = this.RULE("linkInlineTail", () => {
+        this.OR([
+            { ALT: () => this.CONSUME(tokens.AngleOpen) },
+            { ALT: () => this.CONSUME(tokens.ArrowRight) },
+            { ALT: () => this.CONSUME(tokens.DottedArrowRight) },
+            { ALT: () => this.CONSUME(tokens.ThickArrowRight) }
+        ]);
+    });
+
     // Subgraph definition
     private subgraph = this.RULE("subgraph", () => {
         this.CONSUME(tokens.SubgraphKeyword);
@@ -615,8 +682,12 @@ export class MermaidParser extends CstParser {
         
         // Class name
         this.CONSUME3(tokens.Identifier, { LABEL: "className" });
-        
+
+        // Mermaid allows a trailing ';' statement terminator.
         this.OPTION(() => {
+            this.CONSUME(tokens.Semicolon);
+        });
+        this.OPTION2(() => {
             this.CONSUME(tokens.Newline);
         });
     });
@@ -637,8 +708,12 @@ export class MermaidParser extends CstParser {
                 { ALT: () => this.CONSUME(tokens.NumberLiteral) }
             ]);
         });
-        
+
+        // Mermaid allows a trailing ';' statement terminator.
         this.OPTION(() => {
+            this.CONSUME(tokens.Semicolon);
+        });
+        this.OPTION2(() => {
             this.CONSUME(tokens.Newline);
         });
     });
@@ -659,8 +734,12 @@ export class MermaidParser extends CstParser {
                 { ALT: () => this.CONSUME(tokens.NumberLiteral) }
             ]);
         });
-        
+
+        // Mermaid allows a trailing ';' statement terminator.
         this.OPTION(() => {
+            this.CONSUME(tokens.Semicolon);
+        });
+        this.OPTION2(() => {
             this.CONSUME(tokens.Newline);
         });
     });

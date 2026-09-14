@@ -30,12 +30,12 @@ export function actorRefToText(refCst: CstNode | undefined): string {
 
 export function lineRemainderToText(lineRem: CstNode | undefined): string | undefined {
   if (!lineRem) return undefined;
-  const ch = (lineRem.children || {}) as any;
   const toks: IToken[] = [];
-  const order = [
-    'Identifier','NumberLiteral','QuotedString','Text','Plus','Minus','Comma','Colon','LParen','RParen'
-  ];
-  for (const k of order) (ch[k] as IToken[] | undefined)?.forEach(t => toks.push(t));
+  for (const value of Object.values((lineRem.children || {}) as Record<string, unknown>)) {
+    for (const item of value as IToken[]) {
+      if (item && typeof item.image === 'string') toks.push(item);
+    }
+  }
   toks.sort((a,b) => (a.startOffset ?? 0) - (b.startOffset ?? 0));
   const txt = textFromTokens(toks);
   return txt || undefined;
