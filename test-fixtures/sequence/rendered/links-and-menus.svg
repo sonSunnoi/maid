@@ -50,8 +50,8 @@
   <line class="lifeline" x1="213" y1="58" x2="213" y2="94"/>
   <path class="msg-line solid" d="M 213 76 L 79 76" />
   <path d="M79,76 L88,72.5 L88,79.5 Z" fill="#333" />
-  <rect class="msg-label-bg" x="123" y="54" width="46" height="16" rx="3"/>
-  <text class="msg-label" x="146" y="62" text-anchor="middle">Check</text>
+  <rect class="msg-label-bg" x="101.5" y="54" width="89" height="16" rx="3"/>
+  <text class="msg-label" x="146" y="62" text-anchor="middle">Check links</text>
   <g class="actor" transform="translate(24,94)">
     <rect class="node-shape" width="110" height="30" rx="0"/>
     <text class="node-label" x="55" y="15" text-anchor="middle" dominant-baseline="middle">Bob</text>

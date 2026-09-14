@@ -58,7 +58,7 @@
   </g>
   <g class="note" transform="translate(71,140)">
     <rect width="150" height="28" rx="0"/>
-    <text class="note-text" x="75" y="18" text-anchor="middle">A shared</text>
+    <text class="note-text" x="75" y="18" text-anchor="middle">A shared note</text>
   </g>
   <g class="actor" transform="translate(24,166)">
     <rect class="node-shape" width="110" height="30" rx="0"/>

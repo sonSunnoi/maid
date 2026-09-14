@@ -55,8 +55,8 @@
   <text class="msg-label" x="146" y="62" text-anchor="middle">already active</text>
   <path class="msg-line dotted" d="M 213 112 L 79 112" />
   <path d="M79,112 L88,108.5 L88,115.5 Z" fill="#333" />
-  <rect class="msg-label-bg" x="94" y="90" width="104" height="16" rx="3"/>
-  <text class="msg-label" x="146" y="98" text-anchor="middle">not active to</text>
+  <rect class="msg-label-bg" x="54.5" y="90" width="183" height="16" rx="3"/>
+  <text class="msg-label" x="146" y="98" text-anchor="middle">not active to deactivate</text>
   <g class="actor" transform="translate(24,130)">
     <rect class="node-shape" width="110" height="30" rx="0"/>
     <text class="node-label" x="55" y="15" text-anchor="middle" dominant-baseline="middle">A</text>

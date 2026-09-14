@@ -15,26 +15,32 @@ This file contains all valid sequence test fixtures rendered with both Mermaid a
 
 1. [activation suffix](#1-activation-suffix)
 2. [actors and aliases](#2-actors-and-aliases)
-3. [alias unclosed quote](#3-alias-unclosed-quote)
-4. [alt minimal](#4-alt-minimal)
-5. [autonumber variants](#5-autonumber-variants)
-6. [basic](#6-basic)
-7. [bidir and async arrows](#7-bidir-and-async-arrows)
-8. [blocks alt opt loop](#8-blocks-alt-opt-loop)
-9. [box groups](#9-box-groups)
-10. [box with messages outside](#10-box-with-messages-outside)
-11. [critical break rect](#11-critical-break-rect)
-12. [links and menus](#12-links-and-menus)
-13. [no trailing newline](#13-no-trailing-newline)
-14. [notes](#14-notes)
-15. [par and](#15-par-and)
-16. [par minimal](#16-par-minimal)
-17. [par over actors](#17-par-over-actors)
-18. [participant double in double](#18-participant-double-in-double)
-19. [participant escaped quotes](#19-participant-escaped-quotes)
-20. [participant unclosed quote](#20-participant-unclosed-quote)
-21. [suffix balance](#21-suffix-balance)
-22. [suffix misuse](#22-suffix-misuse)
+3. [alias conjunction](#3-alias-conjunction)
+4. [alias parenthesized](#4-alias-parenthesized)
+5. [alias unclosed quote](#5-alias-unclosed-quote)
+6. [alt minimal](#6-alt-minimal)
+7. [autonumber variants](#7-autonumber-variants)
+8. [basic](#8-basic)
+9. [bidir and async arrows](#9-bidir-and-async-arrows)
+10. [blocks alt opt loop](#10-blocks-alt-opt-loop)
+11. [box groups](#11-box-groups)
+12. [box with messages outside](#12-box-with-messages-outside)
+13. [critical break rect](#13-critical-break-rect)
+14. [links and menus](#14-links-and-menus)
+15. [message keyword as](#15-message-keyword-as)
+16. [message keyword details](#16-message-keyword-details)
+17. [message symbols](#17-message-symbols)
+18. [no trailing newline](#18-no-trailing-newline)
+19. [note keyword details](#19-note-keyword-details)
+20. [notes](#20-notes)
+21. [par and](#21-par-and)
+22. [par minimal](#22-par-minimal)
+23. [par over actors](#23-par-over-actors)
+24. [participant double in double](#24-participant-double-in-double)
+25. [participant escaped quotes](#25-participant-escaped-quotes)
+26. [participant unclosed quote](#26-participant-unclosed-quote)
+27. [suffix balance](#27-suffix-balance)
+28. [suffix misuse](#28-suffix-misuse)
 
 ---
 
@@ -140,7 +146,99 @@ sequenceDiagram
 
 ---
 
-## 3. Alias Unclosed Quote
+## 3. Alias Conjunction
+
+📄 **Source**: [`alias-conjunction.mmd`](./valid/alias-conjunction.mmd)
+
+### Rendered Output
+
+<table>
+<tr>
+<th width="50%">Mermaid (Official)</th>
+<th width="50%">Maid (Experimental)</th>
+</tr>
+<tr>
+<td>
+
+```mermaid
+sequenceDiagram
+    participant D as Primary DB and file store
+    D->>D: commit
+
+```
+
+</td>
+<td>
+
+<img src="./rendered/alias-conjunction.svg" alt="Maid Rendered Diagram" />
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary>View source code</summary>
+
+```
+sequenceDiagram
+    participant D as Primary DB and file store
+    D->>D: commit
+
+```
+</details>
+
+---
+
+## 4. Alias Parenthesized
+
+📄 **Source**: [`alias-parenthesized.mmd`](./valid/alias-parenthesized.mmd)
+
+### Rendered Output
+
+<table>
+<tr>
+<th width="50%">Mermaid (Official)</th>
+<th width="50%">Maid (Experimental)</th>
+</tr>
+<tr>
+<td>
+
+```mermaid
+sequenceDiagram
+    participant V as Vault (local)
+    participant W as API + worker
+    participant P as localhost:3000
+    V->>W: sync
+    W->>P: notify
+
+```
+
+</td>
+<td>
+
+<img src="./rendered/alias-parenthesized.svg" alt="Maid Rendered Diagram" />
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary>View source code</summary>
+
+```
+sequenceDiagram
+    participant V as Vault (local)
+    participant W as API + worker
+    participant P as localhost:3000
+    V->>W: sync
+    W->>P: notify
+
+```
+</details>
+
+---
+
+## 5. Alias Unclosed Quote
 
 📄 **Source**: [`alias-unclosed-quote.mmd`](./valid/alias-unclosed-quote.mmd)
 
@@ -185,7 +283,7 @@ sequenceDiagram
 
 ---
 
-## 4. Alt Minimal
+## 6. Alt Minimal
 
 📄 **Source**: [`alt-minimal.mmd`](./valid/alt-minimal.mmd)
 
@@ -236,7 +334,7 @@ sequenceDiagram
 
 ---
 
-## 5. Autonumber Variants
+## 7. Autonumber Variants
 
 📄 **Source**: [`autonumber-variants.mmd`](./valid/autonumber-variants.mmd)
 
@@ -293,7 +391,7 @@ sequenceDiagram
 
 ---
 
-## 6. Basic
+## 8. Basic
 
 📄 **Source**: [`basic.mmd`](./valid/basic.mmd)
 
@@ -340,7 +438,7 @@ sequenceDiagram
 
 ---
 
-## 7. Bidir And Async Arrows
+## 9. Bidir And Async Arrows
 
 📄 **Source**: [`bidir-and-async-arrows.mmd`](./valid/bidir-and-async-arrows.mmd)
 
@@ -405,7 +503,7 @@ sequenceDiagram
 
 ---
 
-## 8. Blocks Alt Opt Loop
+## 10. Blocks Alt Opt Loop
 
 📄 **Source**: [`blocks-alt-opt-loop.mmd`](./valid/blocks-alt-opt-loop.mmd)
 
@@ -474,7 +572,7 @@ sequenceDiagram
 
 ---
 
-## 9. Box Groups
+## 11. Box Groups
 
 📄 **Source**: [`box-groups.mmd`](./valid/box-groups.mmd)
 
@@ -535,7 +633,7 @@ sequenceDiagram
 
 ---
 
-## 10. Box With Messages Outside
+## 12. Box With Messages Outside
 
 📄 **Source**: [`box-with-messages-outside.mmd`](./valid/box-with-messages-outside.mmd)
 
@@ -598,7 +696,7 @@ sequenceDiagram
 
 ---
 
-## 11. Critical Break Rect
+## 13. Critical Break Rect
 
 📄 **Source**: [`critical-break-rect.mmd`](./valid/critical-break-rect.mmd)
 
@@ -663,7 +761,7 @@ sequenceDiagram
 
 ---
 
-## 12. Links And Menus
+## 14. Links And Menus
 
 📄 **Source**: [`links-and-menus.mmd`](./valid/links-and-menus.mmd)
 
@@ -714,7 +812,132 @@ sequenceDiagram
 
 ---
 
-## 13. No Trailing Newline
+## 15. Message Keyword As
+
+📄 **Source**: [`message-keyword-as.mmd`](./valid/message-keyword-as.mmd)
+
+### Rendered Output
+
+<table>
+<tr>
+<th width="50%">Mermaid (Official)</th>
+<th width="50%">Maid (Experimental)</th>
+</tr>
+<tr>
+<td>
+
+```mermaid
+sequenceDiagram
+    A->>B: adopt corrected text as actual
+
+```
+
+</td>
+<td>
+
+<img src="./rendered/message-keyword-as.svg" alt="Maid Rendered Diagram" />
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary>View source code</summary>
+
+```
+sequenceDiagram
+    A->>B: adopt corrected text as actual
+
+```
+</details>
+
+---
+
+## 16. Message Keyword Details
+
+📄 **Source**: [`message-keyword-details.mmd`](./valid/message-keyword-details.mmd)
+
+### Rendered Output
+
+<table>
+<tr>
+<th width="50%">Mermaid (Official)</th>
+<th width="50%">Maid (Experimental)</th>
+</tr>
+<tr>
+<td>
+
+```mermaid
+sequenceDiagram
+    A->>B: Request member details
+
+```
+
+</td>
+<td>
+
+<img src="./rendered/message-keyword-details.svg" alt="Maid Rendered Diagram" />
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary>View source code</summary>
+
+```
+sequenceDiagram
+    A->>B: Request member details
+
+```
+</details>
+
+---
+
+## 17. Message Symbols
+
+📄 **Source**: [`message-symbols.mmd`](./valid/message-symbols.mmd)
+
+### Rendered Output
+
+<table>
+<tr>
+<th width="50%">Mermaid (Official)</th>
+<th width="50%">Maid (Experimental)</th>
+</tr>
+<tr>
+<td>
+
+```mermaid
+sequenceDiagram
+    U->>T: press Alt/Option+Arrow
+    T->>U: toggle -> storage
+
+```
+
+</td>
+<td>
+
+<img src="./rendered/message-symbols.svg" alt="Maid Rendered Diagram" />
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary>View source code</summary>
+
+```
+sequenceDiagram
+    U->>T: press Alt/Option+Arrow
+    T->>U: toggle -> storage
+
+```
+</details>
+
+---
+
+## 18. No Trailing Newline
 
 📄 **Source**: [`no-trailing-newline.mmd`](./valid/no-trailing-newline.mmd)
 
@@ -755,7 +978,48 @@ A->>B: hi
 
 ---
 
-## 14. Notes
+## 19. Note Keyword Details
+
+📄 **Source**: [`note-keyword-details.mmd`](./valid/note-keyword-details.mmd)
+
+### Rendered Output
+
+<table>
+<tr>
+<th width="50%">Mermaid (Official)</th>
+<th width="50%">Maid (Experimental)</th>
+</tr>
+<tr>
+<td>
+
+```mermaid
+sequenceDiagram
+    Note over U: collapsed technical details
+
+```
+
+</td>
+<td>
+
+<img src="./rendered/note-keyword-details.svg" alt="Maid Rendered Diagram" />
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary>View source code</summary>
+
+```
+sequenceDiagram
+    Note over U: collapsed technical details
+
+```
+</details>
+
+---
+
+## 20. Notes
 
 📄 **Source**: [`notes.mmd`](./valid/notes.mmd)
 
@@ -806,7 +1070,7 @@ sequenceDiagram
 
 ---
 
-## 15. Par And
+## 21. Par And
 
 📄 **Source**: [`par-and.mmd`](./valid/par-and.mmd)
 
@@ -861,7 +1125,7 @@ sequenceDiagram
 
 ---
 
-## 16. Par Minimal
+## 22. Par Minimal
 
 📄 **Source**: [`par-minimal.mmd`](./valid/par-minimal.mmd)
 
@@ -912,7 +1176,7 @@ sequenceDiagram
 
 ---
 
-## 17. Par Over Actors
+## 23. Par Over Actors
 
 📄 **Source**: [`par-over-actors.mmd`](./valid/par-over-actors.mmd)
 
@@ -969,7 +1233,7 @@ sequenceDiagram
 
 ---
 
-## 18. Participant Double In Double
+## 24. Participant Double In Double
 
 📄 **Source**: [`participant-double-in-double.mmd`](./valid/participant-double-in-double.mmd)
 
@@ -1014,7 +1278,7 @@ sequenceDiagram
 
 ---
 
-## 19. Participant Escaped Quotes
+## 25. Participant Escaped Quotes
 
 📄 **Source**: [`participant-escaped-quotes.mmd`](./valid/participant-escaped-quotes.mmd)
 
@@ -1059,7 +1323,7 @@ sequenceDiagram
 
 ---
 
-## 20. Participant Unclosed Quote
+## 26. Participant Unclosed Quote
 
 📄 **Source**: [`participant-unclosed-quote.mmd`](./valid/participant-unclosed-quote.mmd)
 
@@ -1104,7 +1368,7 @@ sequenceDiagram
 
 ---
 
-## 21. Suffix Balance
+## 27. Suffix Balance
 
 📄 **Source**: [`suffix-balance.mmd`](./valid/suffix-balance.mmd)
 
@@ -1153,7 +1417,7 @@ sequenceDiagram
 
 ---
 
-## 22. Suffix Misuse
+## 28. Suffix Misuse
 
 📄 **Source**: [`suffix-misuse.mmd`](./valid/suffix-misuse.mmd)
 
