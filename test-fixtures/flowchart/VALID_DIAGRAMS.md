@@ -50,21 +50,22 @@ This file contains all valid flowchart test fixtures rendered with both Mermaid 
 35. [node to subgraph](#35-node-to-subgraph)
 36. [only nodes](#36-only-nodes)
 37. [quotes single inside double](#37-quotes-single-inside-double)
-38. [simple flow](#38-simple-flow)
-39. [special arrows](#39-special-arrows)
-40. [special chars](#40-special-chars)
-41. [styling classes](#41-styling-classes)
-42. [subgraph nested direction](#42-subgraph-nested-direction)
-43. [subgraph quoted title](#43-subgraph-quoted-title)
-44. [subgraph to node](#44-subgraph-to-node)
-45. [subgraph to subgraph lr](#45-subgraph-to-subgraph-lr)
-46. [subgraph to subgraph](#46-subgraph-to-subgraph)
-47. [subgraphs](#47-subgraphs)
-48. [typed shapes bad units](#48-typed-shapes-bad-units)
-49. [typed shapes basic](#49-typed-shapes-basic)
-50. [undefined node](#50-undefined-node)
-51. [unicode text](#51-unicode-text)
-52. [with text](#52-with-text)
+38. [semicolon statements](#38-semicolon-statements)
+39. [simple flow](#39-simple-flow)
+40. [special arrows](#40-special-arrows)
+41. [special chars](#41-special-chars)
+42. [styling classes](#42-styling-classes)
+43. [subgraph nested direction](#43-subgraph-nested-direction)
+44. [subgraph quoted title](#44-subgraph-quoted-title)
+45. [subgraph to node](#45-subgraph-to-node)
+46. [subgraph to subgraph lr](#46-subgraph-to-subgraph-lr)
+47. [subgraph to subgraph](#47-subgraph-to-subgraph)
+48. [subgraphs](#48-subgraphs)
+49. [typed shapes bad units](#49-typed-shapes-bad-units)
+50. [typed shapes basic](#50-typed-shapes-basic)
+51. [undefined node](#51-undefined-node)
+52. [unicode text](#52-unicode-text)
+53. [with text](#53-with-text)
 
 ---
 
@@ -1871,7 +1872,54 @@ flowchart LR
 
 ---
 
-## 38. Simple Flow
+## 38. Semicolon Statements
+
+📄 **Source**: [`semicolon-statements.mmd`](./valid/semicolon-statements.mmd)
+
+### Rendered Output
+
+<table>
+<tr>
+<th width="50%">Mermaid (Official)</th>
+<th width="50%">Maid (Experimental)</th>
+</tr>
+<tr>
+<td>
+
+```mermaid
+flowchart TD
+ A["semi;colon"] --> B; C --> D;
+ subgraph S
+ E --> F; G --> H
+ end
+
+```
+
+</td>
+<td>
+
+<img src="./rendered/semicolon-statements.svg" alt="Maid Rendered Diagram" />
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary>View source code</summary>
+
+```
+flowchart TD
+ A["semi;colon"] --> B; C --> D;
+ subgraph S
+ E --> F; G --> H
+ end
+
+```
+</details>
+
+---
+
+## 39. Simple Flow
 
 📄 **Source**: [`simple-flow.mmd`](./valid/simple-flow.mmd)
 
@@ -1910,7 +1958,7 @@ flowchart TD
 
 ---
 
-## 39. Special Arrows
+## 40. Special Arrows
 
 📄 **Source**: [`special-arrows.mmd`](./valid/special-arrows.mmd)
 
@@ -1955,7 +2003,7 @@ flowchart LR
 
 ---
 
-## 40. Special Chars
+## 41. Special Chars
 
 📄 **Source**: [`special-chars.mmd`](./valid/special-chars.mmd)
 
@@ -1998,7 +2046,7 @@ flowchart LR
 
 ---
 
-## 41. Styling Classes
+## 42. Styling Classes
 
 📄 **Source**: [`styling-classes.mmd`](./valid/styling-classes.mmd)
 
@@ -2041,7 +2089,7 @@ flowchart TD
 
 ---
 
-## 42. Subgraph Nested Direction
+## 43. Subgraph Nested Direction
 
 📄 **Source**: [`subgraph-nested-direction.mmd`](./valid/subgraph-nested-direction.mmd)
 
@@ -2098,7 +2146,7 @@ flowchart TD
 
 ---
 
-## 43. Subgraph Quoted Title
+## 44. Subgraph Quoted Title
 
 📄 **Source**: [`subgraph-quoted-title.mmd`](./valid/subgraph-quoted-title.mmd)
 
@@ -2147,7 +2195,7 @@ flowchart TD
 
 ---
 
-## 44. Subgraph To Node
+## 45. Subgraph To Node
 
 📄 **Source**: [`subgraph-to-node.mmd`](./valid/subgraph-to-node.mmd)
 
@@ -2196,7 +2244,7 @@ flowchart TD
 
 ---
 
-## 45. Subgraph To Subgraph Lr
+## 46. Subgraph To Subgraph Lr
 
 📄 **Source**: [`subgraph-to-subgraph-lr.mmd`](./valid/subgraph-to-subgraph-lr.mmd)
 
@@ -2251,7 +2299,7 @@ flowchart LR
 
 ---
 
-## 46. Subgraph To Subgraph
+## 47. Subgraph To Subgraph
 
 📄 **Source**: [`subgraph-to-subgraph.mmd`](./valid/subgraph-to-subgraph.mmd)
 
@@ -2306,7 +2354,7 @@ flowchart TD
 
 ---
 
-## 47. Subgraphs
+## 48. Subgraphs
 
 📄 **Source**: [`subgraphs.mmd`](./valid/subgraphs.mmd)
 
@@ -2357,7 +2405,7 @@ flowchart TD
 
 ---
 
-## 48. Typed Shapes Bad Units
+## 49. Typed Shapes Bad Units
 
 📄 **Source**: [`typed-shapes-bad-units.mmd`](./valid/typed-shapes-bad-units.mmd)
 
@@ -2404,7 +2452,7 @@ flowchart TD
 
 ---
 
-## 49. Typed Shapes Basic
+## 50. Typed Shapes Basic
 
 📄 **Source**: [`typed-shapes-basic.mmd`](./valid/typed-shapes-basic.mmd)
 
@@ -2451,7 +2499,7 @@ flowchart LR
 
 ---
 
-## 50. Undefined Node
+## 51. Undefined Node
 
 📄 **Source**: [`undefined-node.mmd`](./valid/undefined-node.mmd)
 
@@ -2494,7 +2542,7 @@ flowchart TD
 
 ---
 
-## 51. Unicode Text
+## 52. Unicode Text
 
 📄 **Source**: [`unicode-text.mmd`](./valid/unicode-text.mmd)
 
@@ -2541,7 +2589,7 @@ flowchart LR
 
 ---
 
-## 52. With Text
+## 53. With Text
 
 📄 **Source**: [`with-text.mmd`](./valid/with-text.mmd)
 

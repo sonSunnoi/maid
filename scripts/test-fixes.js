@@ -32,6 +32,12 @@ function expectValid(text, opts = {}) {
   assert.strictEqual(errs.filter(e => e.severity === 'error').length, 0, 'Expected no errors');
 }
 
+// Semicolons terminate statements, not quoted labels. Safe fixes must preserve them.
+const semicolons = fs.readFileSync(path.join(__dirname, '../test-fixtures/flowchart/valid/semicolon-statements.mmd'), 'utf8');
+expectValid(semicolons);
+assert.strictEqual(applyFixes(semicolons), semicolons);
+assert(validate('flowchart TD\n A --> B; C D').some(e => e.severity === 'error'));
+
 const cases = [
   {
     name: 'FL-ARROW-INVALID',

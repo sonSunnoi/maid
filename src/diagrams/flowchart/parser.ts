@@ -61,10 +61,10 @@ export class MermaidParser extends CstParser {
             });
         });
         
-        // Optional semicolon terminator
-        this.OPTION2(() => this.CONSUME(tokens.Semicolon));
-        // Statement must end at newline or EOF (prevents multiple nodes on one line without arrows)
+        // A semicolon ends the statement, just like newline or EOF.
+        // Still reject adjacent nodes without an arrow or statement separator.
         this.OR2([
+            { ALT: () => this.CONSUME(tokens.Semicolon) },
             { ALT: () => this.CONSUME(tokens.Newline) },
             { ALT: () => this.CONSUME(EOF as any) }
         ]);
