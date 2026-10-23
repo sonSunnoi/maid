@@ -3,3 +3,5 @@
 {"name":"negative-safe-level-skips-rule","level":"safe","before":"sequenceDiagram\n Capture->>Loop: Finish sorting blue tiles","after":null}
 {"name":"negative-valid-source-unchanged","level":"all","before":"sequenceDiagram\n    participant X as Agent\n    X->>X: hello world","after":null}
 {"name":"negative-keyword-only-in-message-text","level":"all","before":"sequenceDiagram\n  loop every call\n    A->>B: loop\n  end","after":null}
+{"name":"hyphenated-id-with-keyword-prefix-kept","level":"all","before":"sequenceDiagram\n  participant Loop-worker\n  participant Loop\n  Loop-worker->>Loop: go","after":"sequenceDiagram\n  participant Loop-worker\n  participant LoopActor as Loop\n  Loop-worker->>LoopActor: go"}
+{"name":"metadata-id-renamed-with-declaration","level":"all","before":"sequenceDiagram\n  participant Loop as Agent loop\n  participant B\n  links Loop: {\"Dashboard\": \"https://example.com\"}\n  Loop->>B: hi","after":"sequenceDiagram\n  participant LoopActor as Agent loop\n  participant B\n  links LoopActor: {\"Dashboard\": \"https://example.com\"}\n  LoopActor->>B: hi"}

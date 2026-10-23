@@ -19,8 +19,10 @@ const SEQ_ARROW = /(?:<<)?-{1,2}(?:>>|>|x|\))/g;
 const SEQ_DECL = /^(\s*(?:create\s+)?(?:participant|actor)\s+)([^\s:]+)(\s+as\s+.*)?$/i;
 const SEQ_NOTE = /^(\s*note\s+(?:over|left of|right of)\s+)([^:]*)(:.*)?$/i;
 const SEQ_TARGET = /^(\s*(?:activate|deactivate|destroy)\s+)(\w+)(.*)$/i;
-const wordPattern = (word) => new RegExp(`(?<!\\w)${word}(?!\\w)`, 'g');
-const arrowEndpoints = (head) => head.replace(SEQ_ARROW, ' ').match(/[^\s+\-]+/g) ?? [];
+const SEQ_META = /^(\s*(?:links?|properties|details)\s+)([^\s:]+)(\s*:.*)$/i;
+// A whole id: hyphens belong to ids (Loop-worker is not Loop) unless they start an arrow or follow one as the deactivate marker.
+const wordPattern = (word) => new RegExp(`(?:(?<![\\w-])|(?<=[>x)]-))${word}(?!\\w)(?!-(?![->x)]))`, 'g');
+const arrowEndpoints = (head) => head.replace(SEQ_ARROW, ' ').match(/[^\s+-][^\s+]*/g) ?? [];
 function uniqueName(source, base) {
     let name = base;
     for (let n = 2; wordPattern(name).test(source); n++)
@@ -57,6 +59,7 @@ function renameKeywordParticipants(source) {
         const decl = line.match(SEQ_DECL);
         const note = decl ? null : line.match(SEQ_NOTE);
         const target = decl || note ? null : line.match(SEQ_TARGET);
+        const meta = decl || note || target ? null : line.match(SEQ_META);
         const head = line.split(':')[0];
         if (decl) {
             seen.add(decl[2]);
@@ -75,7 +78,11 @@ function renameKeywordParticipants(source) {
             out.push(`${target[1]}${names.get(target[2])}${target[3]}`);
             continue;
         }
-        else if (!target && hasArrow(head)) {
+        else if (meta && names.has(meta[2])) {
+            out.push(`${meta[1]}${names.get(meta[2])}${meta[3]}`);
+            continue;
+        }
+        else if (!target && !meta && hasArrow(head)) {
             const indent = line.match(/^\s*/)[0];
             const endpoints = arrowEndpoints(head);
             for (const [index, id] of endpoints.entries()) {
