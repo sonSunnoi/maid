@@ -1,0 +1,5 @@
+{"name":"sequence-reserved-loop-target","level":"all","before":"sequenceDiagram\n Capture->>Loop: Finish sorting blue tiles","after":"sequenceDiagram\n participant Capture\n participant LoopActor as Loop\n Capture->>LoopActor: Finish sorting blue tiles"}
+{"name":"declared-keyword-participant-renamed","level":"all","before":"sequenceDiagram\n    participant Loop as Tile sorter\n    participant J as paint()\n    Loop->>J: paint(tile)\n    J-->>Loop: result, color blue","after":"sequenceDiagram\n    participant LoopActor as Tile sorter\n    participant J as paint()\n    LoopActor->>J: paint(tile)\n    J-->>LoopActor: result, color blue"}
+{"name":"negative-safe-level-skips-rule","level":"safe","before":"sequenceDiagram\n Capture->>Loop: Finish sorting blue tiles","after":null}
+{"name":"negative-valid-source-unchanged","level":"all","before":"sequenceDiagram\n    participant X as Agent\n    X->>X: hello world","after":null}
+{"name":"negative-keyword-only-in-message-text","level":"all","before":"sequenceDiagram\n  loop every call\n    A->>B: loop\n  end","after":null}

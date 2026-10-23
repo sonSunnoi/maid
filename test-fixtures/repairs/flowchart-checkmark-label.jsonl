@@ -1,0 +1,4 @@
+{"name":"emoji-node-id-moved-into-label","level":"safe","before":"flowchart LR\n ✅ mount[Place blue tile] --> ✅ shared[Paint tile once#59; color = blue]","after":"flowchart LR\n mount[\"✅ Place blue tile\"] --> shared[\"✅ Paint tile once#59; color = blue\"]"}
+{"name":"checkmark-declaration-and-bare-endpoints","level":"safe","before":"flowchart LR\n ✅ mount[Place blue tile] --> shared[Load once]\n ✅ mount --> ✅ shared","after":"flowchart LR\n mount[\"✅ Place blue tile\"] --> shared[Load once]\n mount --> shared"}
+{"name":"negative-flowchart-stray-checkmark-after-target-not-handled","level":"safe","before":"flowchart LR\n    Existing[Unpainted tile] --> Owner ✅","after":null}
+{"name":"negative-valid-source-unchanged","level":"safe","before":"flowchart LR\n  A[\"✅ done\"] --> B[next]","after":null}

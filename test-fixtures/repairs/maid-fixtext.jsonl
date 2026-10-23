@@ -1,0 +1,2 @@
+{"name":"unclosed-bracket-closed","level":"safe","before":"flowchart TD\n  A --> B\n  B --> C[unclosed","after":"flowchart TD\n  A --> B\n  B --> C[unclosed]"}
+{"name":"negative-valid-source-unchanged","level":"safe","before":"flowchart TD\n  A --> B\n  B --> C[closed]","after":null}
