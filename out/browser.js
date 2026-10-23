@@ -1,0 +1,39 @@
+// Browser-specific entry point with minimal exports
+// This reduces bundle size by only including what's needed for web usage
+// Main validation and fixing
+export { validate, detectDiagramType } from './core/router.js';
+// Auto-fixes - main browser use case
+export { computeFixes } from './core/fixes.js';
+export { applyEdits } from './core/edits.js';
+// Renderer for browser
+export { MermaidRenderer, renderMermaid } from './renderer/index.js';
+// Mermaid.js-compatible API (drop-in replacement)
+export { createMermaidAPI } from './mermaid-compat.js';
+import { validate as _validate } from './core/router.js';
+import { computeFixes as _computeFixes } from './core/fixes.js';
+import { applyEdits as _applyEdits } from './core/edits.js';
+/**
+ * Browser-friendly validation and auto-fix in one call
+ */
+export function fixText(text, options = {}) {
+    const { strict = false, level = 'safe' } = options;
+    let current = text;
+    for (let i = 0; i < 5; i++) {
+        const res = _validate(current, { strict });
+        const edits = _computeFixes(current, res.errors, level);
+        if (edits.length === 0)
+            return { fixed: current, errors: res.errors };
+        const next = _applyEdits(current, edits);
+        if (next === current)
+            return { fixed: current, errors: res.errors };
+        current = next;
+    }
+    const finalRes = _validate(current, { strict });
+    return { fixed: current, errors: finalRes.errors };
+}
+// Excluded from browser bundle:
+// - textReport, toJsonResult (CLI formatting)
+// - extractMermaidBlocks, offsetErrors (markdown processing - not needed in browser)
+// - validateFlowchart, validatePie, validateSequence (internal, use validate() instead)
+// - posToOffset, lineTextAt, inferIndentFromLine (editor utilities)
+//# sourceMappingURL=browser.js.map

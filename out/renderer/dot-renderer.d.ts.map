@@ -1,0 +1,1 @@
+{"version":3,"file":"dot-renderer.d.ts","sourceRoot":"","sources":["../../src/renderer/dot-renderer.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,MAAM,EAA0B,MAAM,YAAY,CAAC;AACjE,OAAO,KAAK,EAAE,SAAS,EAAE,MAAM,iBAAiB,CAAC;AAEjD;;;GAGG;AACH,qBAAa,WAAY,YAAW,SAAS;IAC3C,MAAM,CAAC,MAAM,EAAE,MAAM,GAAG,MAAM;IA6B9B,OAAO,CAAC,QAAQ;IAchB,OAAO,CAAC,YAAY;IASpB,OAAO,CAAC,WAAW;CAGpB"}

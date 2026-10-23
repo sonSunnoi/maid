@@ -1,0 +1,1 @@
+{"version":3,"file":"semantics.d.ts","sourceRoot":"","sources":["../../../src/diagrams/class/semantics.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,MAAM,EAAE,MAAM,YAAY,CAAC;AAClD,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,qBAAqB,CAAC;AAG3D,wBAAgB,YAAY,CAAC,IAAI,EAAE,OAAO,EAAE,OAAO,EAAE,MAAM,EAAE,GAAG,eAAe,EAAE,CAEhF"}

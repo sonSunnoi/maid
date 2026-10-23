@@ -1,0 +1,1 @@
+{"version":3,"file":"semantics.d.ts","sourceRoot":"","sources":["../../../src/diagrams/flowchart/semantics.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,MAAM,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAElD,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,qBAAqB,CAAC;AAkzB3D,wBAAgB,gBAAgB,CAAC,GAAG,EAAE,OAAO,EAAE,OAAO,EAAE,MAAM,EAAE,EAAE,IAAI,CAAC,EAAE;IAAE,MAAM,CAAC,EAAE,OAAO,CAAA;CAAE,GAAG,eAAe,EAAE,CAOhH"}

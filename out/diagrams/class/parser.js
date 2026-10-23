@@ -1,0 +1,319 @@
+import { CstParser } from 'chevrotain';
+import * as t from './lexer.js';
+export class ClassParser extends CstParser {
+    constructor() {
+        super(t.allTokens);
+        this.diagram = this.RULE('diagram', () => {
+            this.CONSUME(t.ClassDiagramKeyword);
+            this.OPTION(() => this.CONSUME(t.Newline));
+            this.MANY(() => this.SUBRULE(this.statement));
+        });
+        this.statement = this.RULE('statement', () => {
+            this.OR([
+                { ALT: () => this.SUBRULE(this.titleStmt) },
+                { ALT: () => this.SUBRULE(this.directionStmt) },
+                { ALT: () => this.SUBRULE(this.namespaceStmt) },
+                { ALT: () => this.SUBRULE(this.classLine) },
+                { ALT: () => this.SUBRULE(this.interfaceLine) },
+                { ALT: () => this.SUBRULE(this.relationStmt) },
+                { ALT: () => this.SUBRULE(this.noteStmt) },
+                { ALT: () => this.SUBRULE(this.styleStatement) },
+                { ALT: () => this.SUBRULE(this.classDefStatement) },
+                { ALT: () => this.SUBRULE(this.cssClassStatement) },
+                { ALT: () => this.SUBRULE(this.memberAssignStmt) },
+                { ALT: () => this.CONSUME(t.Newline) },
+            ]);
+        });
+        this.directionStmt = this.RULE('directionStmt', () => {
+            this.CONSUME(t.DirectionKw);
+            this.CONSUME(t.Direction);
+            this.OPTION(() => this.CONSUME(t.Newline));
+        });
+        this.titleStmt = this.RULE('titleStmt', () => {
+            this.CONSUME(t.TitleKw);
+            // Title can be a quoted string or multiple identifiers/numbers (space-separated text)
+            this.OR([
+                { ALT: () => this.CONSUME(t.QuotedString) },
+                { ALT: () => {
+                        // Match one or more identifiers/numbers for multi-word titles
+                        this.AT_LEAST_ONE(() => {
+                            this.OR2([
+                                { ALT: () => this.CONSUME(t.Identifier) },
+                                { ALT: () => this.CONSUME(t.NumberLiteral) },
+                            ]);
+                        });
+                    }
+                }
+            ]);
+            this.OPTION(() => this.CONSUME(t.Newline));
+        });
+        this.namespaceStmt = this.RULE('namespaceStmt', () => {
+            this.CONSUME(t.NamespaceKw);
+            this.OR([
+                { ALT: () => this.CONSUME(t.QuotedString) },
+                { ALT: () => this.CONSUME(t.Identifier) },
+            ]);
+            this.CONSUME(t.LCurly);
+            this.MANY(() => {
+                this.OR2([
+                    { ALT: () => this.CONSUME(t.Newline) },
+                    { ALT: () => this.SUBRULE(this.classLine) },
+                    { ALT: () => this.SUBRULE(this.interfaceLine) },
+                    { ALT: () => this.SUBRULE(this.relationStmt) },
+                    { ALT: () => this.SUBRULE(this.noteStmt) },
+                    { ALT: () => this.SUBRULE(this.memberAssignStmt) },
+                ]);
+            });
+            this.CONSUME(t.RCurly);
+            this.OPTION(() => this.CONSUME2(t.Newline));
+        });
+        // Unified class line: either a declaration with optional stereotype/alias or a block
+        this.classLine = this.RULE('classLine', () => {
+            this.CONSUME(t.ClassKw);
+            this.SUBRULE(this.classRef);
+            this.OR([
+                {
+                    ALT: () => {
+                        this.CONSUME(t.LCurly);
+                        this.MANY(() => {
+                            this.OR2([
+                                { ALT: () => this.CONSUME3(t.Newline) },
+                                { ALT: () => this.SUBRULE(this.memberLineStmt) },
+                            ]);
+                        });
+                        this.CONSUME(t.RCurly);
+                        this.OPTION(() => this.CONSUME(t.Newline));
+                    }
+                },
+                {
+                    ALT: () => {
+                        // Optional bracket label: class X ["Label"]
+                        this.OPTION1(() => {
+                            this.CONSUME(t.SquareOpen);
+                            this.CONSUME(t.QuotedString);
+                            this.CONSUME(t.SquareClose);
+                        });
+                        this.OPTION2(() => {
+                            this.CONSUME(t.LTlt);
+                            this.CONSUME2(t.Identifier);
+                            this.CONSUME(t.GTgt);
+                        });
+                        this.OPTION3(() => {
+                            this.CONSUME(t.AsKw);
+                            this.CONSUME3(t.Identifier);
+                        });
+                        this.OPTION4(() => this.CONSUME2(t.Newline));
+                    }
+                }
+            ]);
+        });
+        // Interface line: similar to class but with interface keyword
+        this.interfaceLine = this.RULE('interfaceLine', () => {
+            this.CONSUME(t.InterfaceKw);
+            this.SUBRULE(this.classRef);
+            this.OR([
+                {
+                    ALT: () => {
+                        this.CONSUME(t.LCurly);
+                        this.MANY(() => {
+                            this.OR2([
+                                { ALT: () => this.CONSUME3(t.Newline) },
+                                { ALT: () => this.SUBRULE(this.memberLineStmt) },
+                            ]);
+                        });
+                        this.CONSUME(t.RCurly);
+                        this.OPTION(() => this.CONSUME(t.Newline));
+                    }
+                },
+                {
+                    ALT: () => {
+                        // Optional bracket label: interface X ["Label"]
+                        this.OPTION1(() => {
+                            this.CONSUME(t.SquareOpen);
+                            this.CONSUME(t.QuotedString);
+                            this.CONSUME(t.SquareClose);
+                        });
+                        this.OPTION2(() => {
+                            this.CONSUME(t.LTlt);
+                            this.CONSUME2(t.Identifier);
+                            this.CONSUME(t.GTgt);
+                        });
+                        this.OPTION3(() => {
+                            this.CONSUME(t.AsKw);
+                            this.CONSUME3(t.Identifier);
+                        });
+                        this.OPTION4(() => this.CONSUME2(t.Newline));
+                    }
+                }
+            ]);
+        });
+        // Foo : +bar()
+        this.memberAssignStmt = this.RULE('memberAssignStmt', () => {
+            this.SUBRULE(this.classRef);
+            this.CONSUME(t.Colon);
+            this.SUBRULE(this.memberLine);
+            this.OPTION(() => this.CONSUME(t.Newline));
+        });
+        this.memberLineStmt = this.RULE('memberLineStmt', () => {
+            this.SUBRULE(this.memberLine);
+        });
+        this.memberLine = this.RULE('memberLine', () => {
+            this.OR([
+                {
+                    GATE: () => this.LA(1).tokenType === t.LTlt,
+                    ALT: () => { this.CONSUME(t.LTlt); this.CONSUME(t.Identifier); this.CONSUME(t.GTgt); }
+                },
+                {
+                    ALT: () => {
+                        this.OPTION(() => this.CONSUME(t.Visibility));
+                        // Optional name before params unless next token is '('
+                        this.OPTION1({
+                            GATE: () => this.LA(1).tokenType !== t.LParen,
+                            DEF: () => this.SUBRULE(this.memberName)
+                        });
+                        this.OPTION2(() => {
+                            this.CONSUME(t.LParen);
+                            this.OPTION3(() => this.SUBRULE(this.argList));
+                            this.CONSUME(t.RParen);
+                        });
+                        this.OPTION4(() => {
+                            this.CONSUME(t.Colon);
+                            this.SUBRULE(this.typeRef);
+                        });
+                    }
+                }
+            ]);
+        });
+        this.memberName = this.RULE('memberName', () => {
+            this.OR([
+                { ALT: () => this.CONSUME(t.Identifier) },
+                { ALT: () => this.CONSUME(t.QuotedString) },
+            ]);
+        });
+        this.param = this.RULE('param', () => {
+            this.OPTION(() => { this.CONSUME(t.Identifier); this.CONSUME(t.Colon); });
+            this.SUBRULE(this.typeRef);
+        });
+        this.argList = this.RULE('argList', () => {
+            this.SUBRULE(this.param);
+            this.MANY(() => {
+                this.CONSUME(t.Comma);
+                this.SUBRULE2(this.param);
+            });
+        });
+        this.typeRef = this.RULE('typeRef', () => {
+            this.OR([
+                { ALT: () => this.CONSUME(t.Identifier) },
+                { ALT: () => this.CONSUME(t.NumberLiteral) },
+                { ALT: () => this.CONSUME(t.QuotedString) },
+            ]);
+        });
+        this.noteStmt = this.RULE('noteStmt', () => {
+            this.CONSUME(t.NoteKw);
+            this.OPTION(() => this.CONSUME(t.ForKw));
+            this.SUBRULE(this.classRef);
+            this.OPTION1(() => this.CONSUME(t.Colon));
+            this.OR([
+                { ALT: () => this.CONSUME(t.QuotedString) },
+                { ALT: () => this.CONSUME(t.Identifier) },
+                { ALT: () => this.CONSUME(t.NumberLiteral) },
+            ]);
+            this.OPTION2(() => this.CONSUME(t.Newline));
+        });
+        // style ClassName fill:#f9f,stroke:#333,color:#fff
+        this.styleStatement = this.RULE('styleStatement', () => {
+            this.CONSUME(t.StyleKeyword);
+            this.CONSUME(t.Identifier);
+            this.MANY(() => {
+                this.OR([
+                    { ALT: () => this.CONSUME2(t.Identifier) },
+                    { ALT: () => this.CONSUME(t.ColorValue) },
+                    { ALT: () => this.CONSUME(t.Colon) },
+                    { ALT: () => this.CONSUME(t.Comma) },
+                    { ALT: () => this.CONSUME(t.NumberLiteral) },
+                ]);
+            });
+            this.OPTION(() => this.CONSUME(t.Newline));
+        });
+        // classDef myStyle fill:#f9f,stroke:#333
+        this.classDefStatement = this.RULE('classDefStatement', () => {
+            this.CONSUME(t.ClassDefKeyword);
+            this.CONSUME(t.Identifier);
+            this.MANY(() => {
+                this.OR([
+                    { ALT: () => this.CONSUME2(t.Identifier) },
+                    { ALT: () => this.CONSUME(t.ColorValue) },
+                    { ALT: () => this.CONSUME(t.Colon) },
+                    { ALT: () => this.CONSUME(t.Comma) },
+                    { ALT: () => this.CONSUME(t.NumberLiteral) },
+                ]);
+            });
+            this.OPTION(() => this.CONSUME(t.Newline));
+        });
+        // cssClass "ClassName1,ClassName2" myStyle
+        this.cssClassStatement = this.RULE('cssClassStatement', () => {
+            this.CONSUME(t.CssClassKeyword);
+            this.CONSUME(t.QuotedString);
+            this.CONSUME(t.Identifier);
+            this.OPTION(() => this.CONSUME(t.Newline));
+        });
+        this.relationOp = this.RULE('relationOp', () => {
+            this.OR([
+                { ALT: () => this.CONSUME(t.RelCompToAgg) },
+                { ALT: () => this.CONSUME(t.RelAggToComp) },
+                { ALT: () => this.CONSUME(t.RelCompBoth) },
+                { ALT: () => this.CONSUME(t.RelAggBoth) },
+                { ALT: () => this.CONSUME(t.LollipopLeft) },
+                { ALT: () => this.CONSUME(t.LollipopRight) },
+                { ALT: () => this.CONSUME(t.RelExtends) },
+                { ALT: () => this.CONSUME(t.RelExtendsRight) },
+                { ALT: () => this.CONSUME(t.RelComposition) },
+                { ALT: () => this.CONSUME(t.RelAggregation) },
+                { ALT: () => this.CONSUME(t.RelRealization) },
+                { ALT: () => this.CONSUME(t.RelDependency) },
+                { ALT: () => this.CONSUME(t.RelRealizationLeft) },
+                { ALT: () => this.CONSUME(t.RelDependencyLeft) },
+                { ALT: () => this.CONSUME(t.RelAssociation) },
+            ]);
+        });
+        this.classRef = this.RULE('classRef', () => {
+            this.OR([
+                { ALT: () => { this.CONSUME(t.Identifier); this.OPTION(() => this.CONSUME(t.GenericAngle)); } },
+                { ALT: () => this.CONSUME(t.QuotedString) },
+                { ALT: () => this.CONSUME(t.BacktickName) },
+            ]);
+        });
+        this.labelText = this.RULE('labelText', () => {
+            this.OR([
+                { ALT: () => this.CONSUME(t.QuotedString) },
+                { ALT: () => this.CONSUME(t.Identifier) },
+                { ALT: () => this.CONSUME(t.NumberLiteral) },
+                { ALT: () => this.CONSUME(t.GenericAngle) },
+            ]);
+        });
+        // Foo ["1..*"] <op> ["0..1"] Bar [: Label]
+        this.relationStmt = this.RULE('relationStmt', () => {
+            this.SUBRULE(this.classRef);
+            this.OPTION1(() => this.CONSUME(t.QuotedString, { LABEL: 'leftCard' }));
+            this.SUBRULE(this.relationOp);
+            this.OPTION2(() => this.CONSUME2(t.QuotedString, { LABEL: 'rightCard' }));
+            this.SUBRULE2(this.classRef);
+            this.OPTION3(() => {
+                this.CONSUME(t.Colon);
+                this.AT_LEAST_ONE_SEP({
+                    SEP: t.Comma,
+                    DEF: () => this.SUBRULE(this.labelText),
+                });
+            });
+            this.OPTION4(() => this.CONSUME(t.Newline));
+        });
+        this.performSelfAnalysis();
+    }
+}
+export const parserInstance = new ClassParser();
+export function parse(tokens) {
+    parserInstance.input = tokens;
+    const cst = parserInstance.diagram();
+    return { cst, errors: parserInstance.errors };
+}
+//# sourceMappingURL=parser.js.map
