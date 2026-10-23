@@ -37,26 +37,8 @@ export type { Graph, Node, Edge, NodeShape, ArrowType, Direction } from './rende
 export { createMermaidAPI } from './mermaid-compat.js';
 
 // Convenience: multi-pass fix for a single diagram string
-import type { FixLevel, ValidateOptions as Opts, ValidationError } from './core/types.js';
-import { validate as _validate } from './core/router.js';
-import { computeFixes as _computeFixes } from './core/fixes.js';
-import { applyEdits as _applyEdits } from './core/edits.js';
+export { fixText } from './core/fixText.js';
 
-/**
- * Run validation and repeatedly apply computed fixes until stable (max 5 passes).
- * Returns the final fixed text and the remaining diagnostics after fixes.
- */
-export function fixText(text: string, options: Opts & { level?: FixLevel } = {}): { fixed: string; errors: ValidationError[] } {
-  const { strict = false, level = 'safe' } = options as Opts & { level: FixLevel };
-  let current = text;
-  for (let i = 0; i < 5; i++) {
-    const res = _validate(current, { strict });
-    const edits = _computeFixes(current, res.errors, level);
-    if (edits.length === 0) return { fixed: current, errors: res.errors };
-    const next = _applyEdits(current, edits);
-    if (next === current) return { fixed: current, errors: res.errors };
-    current = next;
-  }
-  const finalRes = _validate(current, { strict });
-  return { fixed: current, errors: finalRes.errors };
-}
+// Repair candidates for a gate that parses each candidate itself
+export { repairCandidates } from './core/candidates.js';
+export type { RepairCandidate } from './core/candidates.js';
