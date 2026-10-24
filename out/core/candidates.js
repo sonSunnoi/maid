@@ -2,10 +2,15 @@ import { validate } from './router.js';
 import { fixText } from './fixText.js';
 const SEQUENCE_HEADER = /^\s*(?:\uFEFF)?sequenceDiagram\b/;
 const FLOWCHART_HEADER = /^\s*(?:flowchart|graph)\b/;
+/** The header may follow `%%` comment lines. */
+const SEQUENCE_HEADER_AFTER_COMMENTS = /^\s*(?:\uFEFF)?(?:%%[^\n]*\n\s*)*sequenceDiagram\b/;
+const escapeSemicolons = (text) => text.replace(/#[a-zA-Z0-9]+;|;/g, token => token === ';' ? '#59;' : token);
 function escapeSequenceSemicolons(source) {
-    if (!SEQUENCE_HEADER.test(source))
+    if (!SEQUENCE_HEADER_AFTER_COMMENTS.test(source))
         return source;
-    return source.replace(/^(\s*(?:[^\n]*?(?:--?>>|--?>|--?x|--?o)\s*[^:\n]+|Note\s+(?:over|left of|right of)\s+[^:\n]+):)([^\r\n]*)/gim, (_, prefix, message) => prefix + message.replace(/#[a-zA-Z0-9]+;|;/g, token => token === ';' ? '#59;' : token));
+    const escaped = source.replace(/^(\s*(?:[^\n]*?(?:--?>>|--?>|--?x|--?o)\s*[^:\n]+|Note\s+(?:over|left of|right of)\s+[^:\n]+):)([^\r\n]*)/gim, (_, prefix, message) => prefix + escapeSemicolons(message));
+    // Block labels end at the line too; a semicolon would end the statement early.
+    return escaped.replace(/^(\s*(?:loop|alt|else|opt|par|and|critical|option|break)\s)([^\r\n]*)/gim, (_, prefix, label) => prefix + escapeSemicolons(label));
 }
 function moveCheckmarks(source) {
     if (!FLOWCHART_HEADER.test(source))

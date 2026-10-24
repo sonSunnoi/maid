@@ -19,10 +19,17 @@ interface Rule {
 const SEQUENCE_HEADER = /^\s*(?:\uFEFF)?sequenceDiagram\b/;
 const FLOWCHART_HEADER = /^\s*(?:flowchart|graph)\b/;
 
+/** The header may follow `%%` comment lines. */
+const SEQUENCE_HEADER_AFTER_COMMENTS = /^\s*(?:\uFEFF)?(?:%%[^\n]*\n\s*)*sequenceDiagram\b/;
+const escapeSemicolons = (text: string) => text.replace(/#[a-zA-Z0-9]+;|;/g, token => token === ';' ? '#59;' : token);
+
 function escapeSequenceSemicolons(source: string): string {
-  if (!SEQUENCE_HEADER.test(source)) return source;
-  return source.replace(/^(\s*(?:[^\n]*?(?:--?>>|--?>|--?x|--?o)\s*[^:\n]+|Note\s+(?:over|left of|right of)\s+[^:\n]+):)([^\r\n]*)/gim,
-    (_, prefix: string, message: string) => prefix + message.replace(/#[a-zA-Z0-9]+;|;/g, token => token === ';' ? '#59;' : token));
+  if (!SEQUENCE_HEADER_AFTER_COMMENTS.test(source)) return source;
+  const escaped = source.replace(/^(\s*(?:[^\n]*?(?:--?>>|--?>|--?x|--?o)\s*[^:\n]+|Note\s+(?:over|left of|right of)\s+[^:\n]+):)([^\r\n]*)/gim,
+    (_, prefix: string, message: string) => prefix + escapeSemicolons(message));
+  // Block labels end at the line too; a semicolon would end the statement early.
+  return escaped.replace(/^(\s*(?:loop|alt|else|opt|par|and|critical|option|break)\s)([^\r\n]*)/gim,
+    (_, prefix: string, label: string) => prefix + escapeSemicolons(label));
 }
 
 function moveCheckmarks(source: string): string {

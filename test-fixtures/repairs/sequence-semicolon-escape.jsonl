@@ -4,3 +4,7 @@
 {"name":"existing-entity-kept","level":"safe","before":"sequenceDiagram\n  A->>B: one#59; two; three","after":"sequenceDiagram\n  A->>B: one#59; two#59; three"}
 {"name":"negative-valid-source-unchanged","level":"safe","before":"sequenceDiagram\n    participant X as Agent\n    X->>X: hello world\n    Note over X: all fine","after":null}
 {"name":"negative-reserved-words-in-message-valid","level":"safe","before":"sequenceDiagram\n    A->>B: adopt corrected text as actual\n    B-->>A: alt flow chosen","after":null}
+{"name":"loop-label-semicolon","level":"safe","before":"sequenceDiagram\n  A->>B: go\n  loop Mix colors; repeat\n    A->>B: next\n  end","after":"sequenceDiagram\n  A->>B: go\n  loop Mix colors#59; repeat\n    A->>B: next\n  end"}
+{"name":"alt-else-label-semicolon","level":"safe","before":"sequenceDiagram\n  A->>B: go\n  alt Tile is blue; ok\n    A->>B: yes\n  else Tile is red; other\n    A->>B: no\n  end","after":"sequenceDiagram\n  A->>B: go\n  alt Tile is blue#59; ok\n    A->>B: yes\n  else Tile is red#59; other\n    A->>B: no\n  end"}
+{"name":"header-after-comment","level":"safe","before":"%% palette note\nsequenceDiagram\n  A->>B: one; two","after":"%% palette note\nsequenceDiagram\n  A->>B: one#59; two"}
+{"name":"negative-block-label-without-semicolon","level":"safe","before":"sequenceDiagram\n  A->>B: go\n  loop Mix colors\n    A->>B: next\n  end","after":null}
