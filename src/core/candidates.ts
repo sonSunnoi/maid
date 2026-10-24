@@ -193,6 +193,15 @@ function renameFlowchartKeywordIds(source: string): string {
   }).join('\n');
 }
 
+/** Classic Mermaid shape names that the 11.x `@{ shape }` registry does not know. */
+const CLASSIC_SHAPES: Record<string, string> = { rhombus: 'diamond', parallelogram: 'lean-r', parallelogramAlt: 'lean-l', trapezoidAlt: 'trap-t' };
+
+function mapClassicShapes(source: string): string {
+  if (!FLOWCHART_HEADER_AFTER_COMMENTS.test(source)) return source;
+  return source.replace(/(@\{[^}\n]*?\bshape:\s*)(["']?)([A-Za-z]+)\2/g,
+    (match, prefix: string, quote: string, name: string) => CLASSIC_SHAPES[name] ? `${prefix}${quote}${CLASSIC_SHAPES[name]}${quote}` : match);
+}
+
 const RULES: Rule[] = [
   {
     id: 'sequence-semicolon-escape',
@@ -214,6 +223,13 @@ const RULES: Rule[] = [
     chain: true,
     apply: renameFlowchartKeywordIds,
     issue: () => 'id collides with a Mermaid keyword',
+  },
+  {
+    id: 'flowchart-classic-shape-alias',
+    level: 'safe',
+    chain: true,
+    apply: mapClassicShapes,
+    issue: () => "shape name missing from Mermaid's registry",
   },
   {
     id: 'flowchart-checkmark-label',
