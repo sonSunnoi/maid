@@ -1,0 +1,7 @@
+{"name":"declared-keyword-id-keeps-label","level":"safe","before":"flowchart TD\n    call[\"run tiles\"]\n    sort[\"x\"]\n    call --> sort\n    style call fill:#f00","after":"flowchart TD\n    callNode[\"run tiles\"]\n    sort[\"x\"]\n    callNode --> sort\n    style callNode fill:#f00"}
+{"name":"unlabeled-id-becomes-label","level":"safe","before":"flowchart LR\n  A -->|call| call --> B","after":"flowchart LR\n  A -->|call| callNode[\"call\"] --> B"}
+{"name":"end-id-with-subgraph-closer-untouched","level":"safe","before":"flowchart TD\n  subgraph S [tile group]\n    A --> end\n  end","after":"flowchart TD\n  subgraph S [tile group]\n    A --> endNode[\"end\"]\n  end"}
+{"name":"header-after-comment-lines","level":"safe","before":"%% palette demo\nflowchart TD\n  class --> B","after":"%% palette demo\nflowchart TD\n  classNode[\"class\"] --> B"}
+{"name":"negative-keyword-only-in-labels-and-closers","level":"safe","before":"flowchart TD\n  subgraph S [call graph]\n    A[\"end call\"] --> B\n  end","after":null}
+{"name":"negative-capitalised-word-is-not-keyword","level":"safe","before":"flowchart TD\n  Call --> End","after":null}
+{"name":"negative-sequence-diagram-ignored","level":"safe","before":"sequenceDiagram\n  loop every call\n    A->>B: loop\n  end","after":null}

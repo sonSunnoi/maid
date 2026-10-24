@@ -1,6 +1,5 @@
 import { validate } from './router.js';
 import { fixText } from './fixText.js';
-const SEQUENCE_HEADER = /^\s*(?:\uFEFF)?sequenceDiagram\b/;
 const FLOWCHART_HEADER = /^\s*(?:flowchart|graph)\b/;
 /** The header may follow `%%` comment lines. */
 const SEQUENCE_HEADER_AFTER_COMMENTS = /^\s*(?:\uFEFF)?(?:%%[^\n]*\n\s*)*sequenceDiagram\b/;
@@ -39,7 +38,7 @@ function uniqueName(source, base) {
  * displayed name: "participant <newId> as <old>", declared before first use.
  */
 function renameKeywordParticipants(source) {
-    if (!SEQUENCE_HEADER.test(source))
+    if (!SEQUENCE_HEADER_AFTER_COMMENTS.test(source))
         return source;
     const lines = source.split('\n');
     const keywords = new Set();
@@ -111,12 +110,97 @@ function renameKeywordParticipants(source) {
     }
     return out.join('\n');
 }
+/** Flowchart node ids Mermaid rejects; case-sensitive. */
+const FLOW_KEYWORD_IDS = new Set(['call', 'end', 'subgraph', 'graph', 'flowchart', 'style', 'class', 'classDef', 'href', 'linkStyle', 'interpolate']);
+const FLOW_DIRECTIVES = new Set(['subgraph', 'end', 'graph', 'flowchart', 'style', 'class', 'classDef', 'linkStyle', 'click', 'direction']);
+const FLOWCHART_HEADER_AFTER_COMMENTS = /^\s*(?:%%[^\n]*\n\s*)*(?:flowchart|graph)\b/;
+/** Same-length copy with label, string and edge-text contents blanked, so only ids stay visible. */
+function maskLabels(line) {
+    const fill = (m) => m[0] + '\0'.repeat(m.length - 2) + m[m.length - 1];
+    let out = line.replace(/"[^"]*"/g, m => '\0'.repeat(m.length)).replace(/\|[^|]*\|/g, fill);
+    for (let prev = ''; prev !== out;) {
+        prev = out;
+        out = out.replace(/\[[^[\]]*\]|\([^()]*\)|\{[^{}]*\}/g, fill);
+    }
+    return out.replace(/(?<![-=.])(?:--|==|-\.)\s+[^\n]*?\s+(?=-->|==>|\.->|---|===)/g, m => m.slice(0, 2) + '\0'.repeat(m.length - 2));
+}
+function flowWords(line) {
+    if (/^\s*(?:%%|classDef\b)/.test(line))
+        return [];
+    const masked = maskLabels(line);
+    const lead = masked.match(/^\s*([A-Za-z_]\w*)/)?.[1];
+    const tokens = masked.trim().split(/\s+/);
+    const words = [];
+    for (const m of masked.matchAll(/[A-Za-z_]\w*/g)) {
+        const before = masked.slice(0, m.index).trimEnd();
+        const after = masked.slice(m.index + m[0].length).trimStart();
+        const isLead = before === '';
+        const opensNode = after === '' || /^(?:[[({&;<\-=~.]|:::|@\{)/.test(after);
+        const directive = isLead && FLOW_DIRECTIVES.has(m[0]) && !/^(?:[[({&\-=~.]|:::|@\{)/.test(after);
+        const className = before.endsWith(':::') || (lead === 'class' && tokens.length > 2 && m.index >= masked.lastIndexOf(tokens[tokens.length - 1]));
+        const node = !directive && !className && (isLead || /[&>\-=.~|]$/.test(before)) && opensNode;
+        words.push({ word: m[0], index: m.index, node, rename: !directive && !className });
+    }
+    return words;
+}
+/**
+ * Rename flowchart node ids that are Mermaid keywords. The old id stays as the
+ * visible text: it becomes the label when no occurrence carries a shape label.
+ */
+function renameFlowchartKeywordIds(source) {
+    if (!FLOWCHART_HEADER_AFTER_COMMENTS.test(source))
+        return source;
+    const lines = source.split('\n');
+    const keywords = new Set();
+    for (const line of lines.slice(1))
+        for (const w of flowWords(line))
+            if (w.node && FLOW_KEYWORD_IDS.has(w.word))
+                keywords.add(w.word);
+    if (keywords.size === 0)
+        return source;
+    const taken = (name) => new RegExp(`\\b${name}\\b`).test(source);
+    const names = new Map([...keywords].map(id => {
+        let name = `${id}Node`;
+        for (let n = 2; taken(name); n++)
+            name = `${id}Node${n}`;
+        return [id, name];
+    }));
+    const unlabeled = new Set([...keywords].filter(id => !lines.slice(1).some(line => flowWords(line).some(w => w.word === id && w.node && /^(?:[[({]|@\{)/.test(line.slice(w.index + id.length))))));
+    return lines.map((line, i) => {
+        if (i === 0)
+            return line;
+        let next = line;
+        for (const w of flowWords(line).reverse()) {
+            const name = names.get(w.word);
+            if (!name || !w.rename)
+                continue;
+            const label = unlabeled.delete(w.word);
+            next = next.slice(0, w.index) + name + (label ? `["${w.word}"]` : '') + next.slice(w.index + w.word.length);
+        }
+        return next;
+    }).join('\n');
+}
 const RULES = [
     {
         id: 'sequence-semicolon-escape',
         level: 'safe',
+        chain: true,
         apply: escapeSequenceSemicolons,
         issue: () => 'unescaped sequence message or note semicolon',
+    },
+    {
+        id: 'sequence-keyword-participant-id',
+        level: 'safe',
+        chain: true,
+        apply: renameKeywordParticipants,
+        issue: () => 'id collides with a Mermaid keyword',
+    },
+    {
+        id: 'flowchart-keyword-node-id',
+        level: 'safe',
+        chain: true,
+        apply: renameFlowchartKeywordIds,
+        issue: () => 'id collides with a Mermaid keyword',
     },
     {
         id: 'flowchart-checkmark-label',
@@ -130,12 +214,6 @@ const RULES = [
         apply: (source, diagnostics, level) => diagnostics.length > 0 ? fixText(source, { level }).fixed : source,
         issue: diagnostics => diagnostics[0] ?? 'syntax error',
     },
-    {
-        id: 'sequence-keyword-participant-id',
-        level: 'all',
-        apply: renameKeywordParticipants,
-        issue: () => 'block keyword used as participant id',
-    },
 ];
 /**
  * Ordered repair candidates for one diagram. Pure and synchronous; a candidate
@@ -147,11 +225,17 @@ export function repairCandidates(source, options = {}) {
         .filter(e => e.severity === 'error')
         .map(e => `L${e.line}:${e.column} ${e.message}`);
     const candidates = [];
+    let chained = source;
     for (const rule of RULES) {
         if (rule.level === 'all' && level === 'safe')
             continue;
-        const text = rule.apply(source, diagnostics, level);
-        if (text === source || candidates.some(c => c.text === text))
+        const input = rule.chain ? chained : source;
+        const text = rule.apply(input, diagnostics, level);
+        if (text === input)
+            continue;
+        if (rule.chain)
+            chained = text;
+        if (candidates.some(c => c.text === text))
             continue;
         candidates.push({ text, rule: rule.id, issue: rule.issue(diagnostics), level: rule.id === 'maid-fixtext' ? level : rule.level });
     }
